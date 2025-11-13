@@ -1,449 +1,951 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Javascript Tetris</title>
-  <style>
-    body      { font-family: Helvetica, sans-serif; }
-    #tetris   { margin: 1em auto; padding: 1em; border: 4px solid black; border-radius: 10px; background-color: #F8F8F8; }
-    #stats    { display: inline-block; vertical-align: top; }
-    #canvas   { display: inline-block; vertical-align: top; background: url(texture.jpg); box-shadow: 10px 10px 10px #999; border: 2px solid #333; }
-    #menu     { display: inline-block; vertical-align: top; position: relative; }
-    #menu p   { margin: 0.5em 0; text-align: center; }
-    #menu p a { text-decoration: none; color: black; }
-    #upcoming { display: block; margin: 0 auto; background-color: #E0E0E0; }
-    #score    { color: red; font-weight: bold; vertical-align: middle; }
-    #rows     { color: blue; font-weight: bold; vertical-align: middle; }
-    #stats    { position: absolute; bottom: 0em; right: 1em; }
-    @media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em; width: 250px; } #menu { width: 100px; height: 200px; } #upcoming { width:  50px; height:  50px; } #canvas { width: 100px; height: 200px; } } /* 10px chunks */
-    @media screen and (min-width: 400px) and (min-height: 400px)  { #tetris { font-size: 1.00em; width: 350px; } #menu { width: 150px; height: 300px; } #upcoming { width:  75px; height:  75px; } #canvas { width: 150px; height: 300px; } } /* 15px chunks */
-    @media screen and (min-width: 500px) and (min-height: 500px)  { #tetris { font-size: 1.25em; width: 450px; } #menu { width: 200px; height: 400px; } #upcoming { width: 100px; height: 100px; } #canvas { width: 200px; height: 400px; } } /* 20px chunks */
-    @media screen and (min-width: 600px) and (min-height: 600px)  { #tetris { font-size: 1.50em; width: 550px; } #menu { width: 250px; height: 500px; } #upcoming { width: 125px; height: 125px; } #canvas { width: 250px; height: 500px; } } /* 25px chunks */
-    @media screen and (min-width: 700px) and (min-height: 700px)  { #tetris { font-size: 1.75em; width: 650px; } #menu { width: 300px; height: 600px; } #upcoming { width: 150px; height: 150px; } #canvas { width: 300px; height: 600px; } } /* 30px chunks */
-    @media screen and (min-width: 800px) and (min-height: 800px)  { #tetris { font-size: 2.00em; width: 750px; } #menu { width: 350px; height: 700px; } #upcoming { width: 175px; height: 175px; } #canvas { width: 350px; height: 700px; } } /* 35px chunks */
-    @media screen and (min-width: 900px) and (min-height: 900px)  { #tetris { font-size: 2.25em; width: 850px; } #menu { width: 400px; height: 800px; } #upcoming { width: 200px; height: 200px; } #canvas { width: 400px; height: 800px; } } /* 40px chunks */
-  </style>
+<style>
+	body      { font-family: Helvetica, sans-serif; }
+	#tetris   { margin: 1em auto; padding: 1em; border: 4px solid black; border-radius: 10px; background-color: #F8F8F8; }
+	#stats    { display: inline-block; vertical-align: top; }
+	#canvas   { display: inline-block; vertical-align: top; background: url(texture.jpg); box-shadow: 10px 10px 10px #999; border: 2px solid #333; }
+	#menu     { display: inline-block; vertical-align: top; position: relative; }
+	#menu p   { margin: 0.5em 0; text-align: center; }
+	#menu p a { text-decoration: none; color: black; }
+	#upcoming { display: block; margin: 0 auto; background-color: #E0E0E0; }
+	#hold     { display: block; margin: 0 auto; background-color: #E0E0E0; } /* New */
+	#score    { color: red; font-weight: bold; vertical-align: middle; }
+	#rows     { color: blue; font-weight: bold; vertical-align: middle; }
+	#stats    { position: absolute; bottom: 0em; right: 1em; }
+	@media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em; width: 250px; } #menu { width: 100px; height: 200px; } #upcoming { width:  50px; height:  50px; } #hold { width:  50px; height:  50px; } #canvas { width: 100px; height: 200px; } } /* 10px chunks */
+	@media screen and (min-width: 400px) and (min-height: 400px)  { #tetris { font-size: 1.00em; width: 350px; } #menu { width: 150px; height: 300px; } #upcoming { width:  75px; height:  75px; } #hold { width:  75px; height:  75px; } #canvas { width: 150px; height: 300px; } } /* 15px chunks */
+	@media screen and (min-width: 500px) and (min-height: 500px)  { #tetris { font-size: 1.25em; width: 450px; } #menu { width: 200px; height: 400px; } #upcoming { width: 100px; height: 100px; } #hold { width: 100px; height: 100px; } #canvas { width: 200px; height: 400px; } } /* 20px chunks */
+	@media screen and (min-width: 600px) and (min-height: 600px)  { #tetris { font-size: 1.50em; width: 550px; } #menu { width: 250px; height: 500px; } #upcoming { width: 125px; height: 125px; } #hold { width: 125px; height: 125px; } #canvas { width: 250px; height: 500px; } } /* 25px chunks */
+	@media screen and (min-width: 700px) and (min-height: 700px)  { #tetris { font-size: 1.75em; width: 650px; } #menu { width: 300px; height: 600px; } #upcoming { width: 150px; height: 150px; } #hold { width: 150px; height: 150px; } #canvas { width: 300px; height: 600px; } } /* 30px chunks */
+	@media screen and (min-width: 800px) and (min-height: 800px)  { #tetris { font-size: 2.00em; width: 750px; } #menu { width: 350px; height: 700px; } #upcoming { width: 175px; height: 175px; } #hold { width: 175px; height: 175px; } #canvas { width: 350px; height: 700px; } } /* 35px chunks */
+	@media screen and (min-width: 900px) and (min-height: 900px)  { #tetris { font-size: 2.25em; width: 850px; } #menu { width: 400px; height: 800px; } #upcoming { width: 200px; height: 200px; } #hold { width: 200px; height: 200px; } #canvas { width: 400px; height: 800px; } } /* 40px chunks */
+</style>
 </head>
-
 <body>
-
-  <div id="tetris">
-    <div id="menu">
-      <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
-      <p><canvas id="upcoming"></canvas></p>
-      <p>score <span id="score">00000</span></p>
-      <p>rows <span id="rows">0</span></p>
-    </div>
-    <canvas id="canvas">
-      Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
-    </canvas>
-  </div>
-
-  <script src="stats.js"></script>
-  <script>
-
-    //-------------------------------------------------------------------------
-    // base helper methods
-    //-------------------------------------------------------------------------
-
-    function get(id)        { return document.getElementById(id);  }
-    function hide(id)       { get(id).style.visibility = 'hidden'; }
-    function show(id)       { get(id).style.visibility = null;     }
-    function html(id, html) { get(id).innerHTML = html;            }
-
-    function timestamp()           { return new Date().getTime();                             }
-    function random(min, max)      { return (min + (Math.random() * (max - min)));            }
-    function randomChoice(choices) { return choices[Math.round(random(0, choices.length-1))]; }
-
-    if (!window.requestAnimationFrame) { // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-      window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
-                                     window.mozRequestAnimationFrame    ||
-                                     window.oRequestAnimationFrame      ||
-                                     window.msRequestAnimationFrame     ||
-                                     function(callback, element) {
-                                       window.setTimeout(callback, 1000 / 60);
-                                     }
-    }
-
-    //-------------------------------------------------------------------------
-    // game constants
-    //-------------------------------------------------------------------------
-
-    var KEY     = { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
-        DIR     = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3, MIN: 0, MAX: 3 },
-        stats   = new Stats(),
-        canvas  = get('canvas'),
-        ctx     = canvas.getContext('2d'),
-        ucanvas = get('upcoming'),
-        uctx    = ucanvas.getContext('2d'),
-        speed   = { start: 0.6, decrement: 0.005, min: 0.1 }, // how long before piece drops by 1 row (seconds)
-        nx      = 10, // width of tetris court (in blocks)
-        ny      = 20, // height of tetris court (in blocks)
-        nu      = 5;  // width/height of upcoming preview (in blocks)
-
-    //-------------------------------------------------------------------------
-    // game variables (initialized during reset)
-    //-------------------------------------------------------------------------
-
-    var dx, dy,        // pixel size of a single tetris block
-        blocks,        // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
-        actions,       // queue of user actions (inputs)
-        playing,       // true|false - game is in progress
-        dt,            // time since starting this game
-        current,       // the current piece
-        next,          // the next piece
-        score,         // the current score
-        vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
-        rows,          // number of completed rows in the current game
-        step;          // how long before current piece drops by 1 row
-
-    //-------------------------------------------------------------------------
-    // tetris pieces
-    //
-    // blocks: each element represents a rotation of the piece (0, 90, 180, 270)
-    //         each element is a 16 bit integer where the 16 bits represent
-    //         a 4x4 set of blocks, e.g. j.blocks[0] = 0x44C0
-    //
-    //             0100 = 0x4 << 3 = 0x4000
-    //             0100 = 0x4 << 2 = 0x0400
-    //             1100 = 0xC << 1 = 0x00C0
-    //             0000 = 0x0 << 0 = 0x0000
-    //                               ------
-    //                               0x44C0
-    //
-    //-------------------------------------------------------------------------
-
-    var i = { size: 4, blocks: [0x0F00, 0x2222, 0x00F0, 0x4444], color: 'cyan'   };
-    var j = { size: 3, blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20], color: 'blue'   };
-    var l = { size: 3, blocks: [0x4460, 0x0E80, 0xC440, 0x2E00], color: 'orange' };
-    var o = { size: 2, blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00], color: 'yellow' };
-    var s = { size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: 'green'  };
-    var t = { size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: 'purple' };
-    var z = { size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: 'red'    };
-
-    //------------------------------------------------
-    // do the bit manipulation and iterate through each
-    // occupied block (x,y) for a given piece
-    //------------------------------------------------
-    function eachblock(type, x, y, dir, fn) {
-      var bit, result, row = 0, col = 0, blocks = type.blocks[dir];
-      for(bit = 0x8000 ; bit > 0 ; bit = bit >> 1) {
-        if (blocks & bit) {
-          fn(x + col, y + row);
-        }
-        if (++col === 4) {
-          col = 0;
-          ++row;
-        }
-      }
-    }
-
-    //-----------------------------------------------------
-    // check if a piece can fit into a position in the grid
-    //-----------------------------------------------------
-    function occupied(type, x, y, dir) {
-      var result = false
-      eachblock(type, x, y, dir, function(x, y) {
-        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlock(x,y))
-          result = true;
-      });
-      return result;
-    }
-
-    function unoccupied(type, x, y, dir) {
-      return !occupied(type, x, y, dir);
-    }
-
-    //-----------------------------------------
-    // start with 4 instances of each piece and
-    // pick randomly until the 'bag is empty'
-    //-----------------------------------------
-    var pieces = [];
-    function randomPiece() {
-      if (pieces.length == 0)
-        pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
-      var type = pieces.splice(random(0, pieces.length-1), 1)[0];
-      return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };
-    }
-
-
-    //-------------------------------------------------------------------------
-    // GAME LOOP
-    //-------------------------------------------------------------------------
-
-    function run() {
-
-      showStats(); // initialize FPS counter
-      addEvents(); // attach keydown and resize events
-
-      var last = now = timestamp();
-      function frame() {
-        now = timestamp();
-        update(Math.min(1, (now - last) / 1000.0)); // using requestAnimationFrame have to be able to handle large delta's caused when it 'hibernates' in a background or non-visible tab
-        draw();
-        stats.update();
-        last = now;
-        requestAnimationFrame(frame, canvas);
-      }
-
-      resize(); // setup all our sizing information
-      reset();  // reset the per-game variables
-      frame();  // start the first frame
-
-    }
-
-    function showStats() {
-      stats.domElement.id = 'stats';
-      get('menu').appendChild(stats.domElement);
-    }
-
-    function addEvents() {
-      document.addEventListener('keydown', keydown, false);
-      window.addEventListener('resize', resize, false);
-    }
-
-    function resize(event) {
-      canvas.width   = canvas.clientWidth;  // set canvas logical size equal to its physical size
-      canvas.height  = canvas.clientHeight; // (ditto)
-      ucanvas.width  = ucanvas.clientWidth;
-      ucanvas.height = ucanvas.clientHeight;
-      dx = canvas.width  / nx; // pixel size of a single tetris block
-      dy = canvas.height / ny; // (ditto)
-      invalidate();
-      invalidateNext();
-    }
-
-    function keydown(ev) {
-      var handled = false;
-      if (playing) {
-        switch(ev.keyCode) {
-          case KEY.LEFT:   actions.push(DIR.LEFT);  handled = true; break;
-          case KEY.RIGHT:  actions.push(DIR.RIGHT); handled = true; break;
-          case KEY.UP:     actions.push(DIR.UP);    handled = true; break;
-          case KEY.DOWN:   actions.push(DIR.DOWN);  handled = true; break;
-          case KEY.ESC:    lose();                  handled = true; break;
-        }
-      }
-      else if (ev.keyCode == KEY.SPACE) {
-        play();
-        handled = true;
-      }
-      if (handled)
-        ev.preventDefault(); // prevent arrow keys from scrolling the page (supported in IE9+ and all other browsers)
-    }
-
-    //-------------------------------------------------------------------------
-    // GAME LOGIC
-    //-------------------------------------------------------------------------
-
-    function play() { hide('start'); reset();          playing = true;  }
-    function lose() { show('start'); setVisualScore(); playing = false; }
-
-    function setVisualScore(n)      { vscore = n || score; invalidateScore(); }
-    function setScore(n)            { score = n; setVisualScore(n);  }
-    function addScore(n)            { score = score + n;   }
-    function clearScore()           { setScore(0); }
-    function clearRows()            { setRows(0); }
-    function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); }
-    function addRows(n)             { setRows(rows + n); }
-    function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); }
-    function setBlock(x,y,type)     { blocks[x] = blocks[x] || []; blocks[x][y] = type; invalidate(); }
-    function clearBlocks()          { blocks = []; invalidate(); }
-    function clearActions()         { actions = []; }
-    function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     }
-    function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
-
-    function reset() {
-      dt = 0;
-      clearActions();
-      clearBlocks();
-      clearRows();
-      clearScore();
-      setCurrentPiece(next);
-      setNextPiece();
-    }
-
-    function update(idt) {
-      if (playing) {
-        if (vscore < score)
-          setVisualScore(vscore + 1);
-        handle(actions.shift());
-        dt = dt + idt;
-        if (dt > step) {
-          dt = dt - step;
-          drop();
-        }
-      }
-    }
-
-    function handle(action) {
-      switch(action) {
-        case DIR.LEFT:  move(DIR.LEFT);  break;
-        case DIR.RIGHT: move(DIR.RIGHT); break;
-        case DIR.UP:    rotate();        break;
-        case DIR.DOWN:  drop();          break;
-      }
-    }
-
-    function move(dir) {
-      var x = current.x, y = current.y;
-      switch(dir) {
-        case DIR.RIGHT: x = x + 1; break;
-        case DIR.LEFT:  x = x - 1; break;
-        case DIR.DOWN:  y = y + 1; break;
-      }
-      if (unoccupied(current.type, x, y, current.dir)) {
-        current.x = x;
-        current.y = y;
-        invalidate();
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-
-    function rotate() {
-      var newdir = (current.dir == DIR.MAX ? DIR.MIN : current.dir + 1);
-      if (unoccupied(current.type, current.x, current.y, newdir)) {
-        current.dir = newdir;
-        invalidate();
-      }
-    }
-
-    function drop() {
-      if (!move(DIR.DOWN)) {
-        addScore(10);
-        dropPiece();
-        removeLines();
-        setCurrentPiece(next);
-        setNextPiece(randomPiece());
-        clearActions();
-        if (occupied(current.type, current.x, current.y, current.dir)) {
-          lose();
-        }
-      }
-    }
-
-    function dropPiece() {
-      eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
-        setBlock(x, y, current.type);
-      });
-    }
-
-    function removeLines() {
-      var x, y, complete, n = 0;
-      for(y = ny ; y > 0 ; --y) {
-        complete = true;
-        for(x = 0 ; x < nx ; ++x) {
-          if (!getBlock(x, y))
-            complete = false;
-        }
-        if (complete) {
-          removeLine(y);
-          y = y + 1; // recheck same line
-          n++;
-        }
-      }
-      if (n > 0) {
-        addRows(n);
-        addScore(100*Math.pow(2,n-1)); // 1: 100, 2: 200, 3: 400, 4: 800
-      }
-    }
-
-    function removeLine(n) {
-      var x, y;
-      for(y = n ; y >= 0 ; --y) {
-        for(x = 0 ; x < nx ; ++x)
-          setBlock(x, y, (y == 0) ? null : getBlock(x, y-1));
-      }
-    }
-
-    //-------------------------------------------------------------------------
-    // RENDERING
-    //-------------------------------------------------------------------------
-
-    var invalid = {};
-
-    function invalidate()         { invalid.court  = true; }
-    function invalidateNext()     { invalid.next   = true; }
-    function invalidateScore()    { invalid.score  = true; }
-    function invalidateRows()     { invalid.rows   = true; }
-
-    function draw() {
-      ctx.save();
-      ctx.lineWidth = 1;
-      ctx.translate(0.5, 0.5); // for crisp 1px black lines
-      drawCourt();
-      drawNext();
-      drawScore();
-      drawRows();
-      ctx.restore();
-    }
-
-    function drawCourt() {
-      if (invalid.court) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (playing)
-          drawPiece(ctx, current.type, current.x, current.y, current.dir);
-        var x, y, block;
-        for(y = 0 ; y < ny ; y++) {
-          for (x = 0 ; x < nx ; x++) {
-            if (block = getBlock(x,y))
-              drawBlock(ctx, x, y, block.color);
-          }
-        }
-        ctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); // court boundary
-        invalid.court = false;
-      }
-    }
-
-    function drawNext() {
-      if (invalid.next) {
-        var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
-        uctx.save();
-        uctx.translate(0.5, 0.5);
-        uctx.clearRect(0, 0, nu*dx, nu*dy);
-        drawPiece(uctx, next.type, padding, padding, next.dir);
-        uctx.strokeStyle = 'black';
-        uctx.strokeRect(0, 0, nu*dx - 1, nu*dy - 1);
-        uctx.restore();
-        invalid.next = false;
-      }
-    }
-
-    function drawScore() {
-      if (invalid.score) {
-        html('score', ("00000" + Math.floor(vscore)).slice(-5));
-        invalid.score = false;
-      }
-    }
-
-    function drawRows() {
-      if (invalid.rows) {
-        html('rows', rows);
-        invalid.rows = false;
-      }
-    }
-
-    function drawPiece(ctx, type, x, y, dir) {
-      eachblock(type, x, y, dir, function(x, y) {
-        drawBlock(ctx, x, y, type.color);
-      });
-    }
-
-    function drawBlock(ctx, x, y, color) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x*dx, y*dy, dx, dy);
-      ctx.strokeRect(x*dx, y*dy, dx, dy)
-    }
-
-    //-------------------------------------------------------------------------
-    // FINALLY, lets run the game
-    //-------------------------------------------------------------------------
-
-    run();
-
-  </script>
-
+	<div id="tetris">
+		<div id="menu">
+			<p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
+			<p>(A) to toggle AI</p>
+			<p>(1) Baseline AI</p>
+			<p>(2) Tuned AI</p>
+			<p>(3) Beam Search AI</p>
+			<p>Hold (C)</p>
+			<p>
+				<canvas id="hold"></canvas>
+			</p>
+			<p>Next</p>
+			<p>
+				<canvas id="upcoming"></canvas>
+			</p>
+			<p>score <span id="score">00000</span></p>
+			<p>rows <span id="rows">0</span></p>
+		</div>
+		<canvas id="canvas">
+			Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
+		</canvas>
+	</div>
+	<script src="stats.js"></script>
+	<script>
+		//-------------------------------------------------------------------------
+		// base helper methods
+		//-------------------------------------------------------------------------
+		
+		function get(id)        { return document.getElementById(id);  }
+		function hide(id)       { get(id).style.visibility = 'hidden'; }
+		function show(id)       { get(id).style.visibility = null;     }
+		function html(id, html) { get(id).innerHTML = html;            }
+		
+		function timestamp()           { return new Date().getTime();                             }
+		function random(min, max)      { return (min + (Math.random() * (max - min)));            }
+		function randomChoice(choices) { return choices[Math.round(random(0, choices.length-1))]; }
+		
+		if (!window.requestAnimationFrame) { // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+		  window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
+		                                 window.mozRequestAnimationFrame    ||
+		                                 window.oRequestAnimationFrame      ||
+		                                 window.msRequestAnimationFrame     ||
+		                                 function(callback, element) {
+		                                   window.setTimeout(callback, 1000 / 60);
+		                                 }
+		}
+		
+		//-------------------------------------------------------------------------
+		// game constants
+		//-------------------------------------------------------------------------
+		
+		var KEY     = { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, C: 67, A: 65, N1: 49, N2: 50, N3: 51 }, // Added C
+		    DIR     = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3, MIN: 0, MAX: 3 },
+		    stats   = new Stats(),
+		    canvas  = get('canvas'),
+		    ctx     = canvas.getContext('2d'),
+		    ucanvas = get('upcoming'),
+		    uctx    = ucanvas.getContext('2d'),
+		    hcanvas = get('hold'),     // New
+		    hctx    = hcanvas.getContext('2d'), // New
+		    speed   = { start: 0.6, decrement: 0.005, min: 0.1 }, // how long before piece drops by 1 row (seconds)
+		    nx      = 10, // width of tetris court (in blocks)
+		    ny      = 20, // height of tetris court (in blocks)
+		    nu      = 5;  // width/height of upcoming preview (in blocks)
+		
+		//-------------------------------------------------------------------------
+		// game variables (initialized during reset)
+		//-------------------------------------------------------------------------
+		
+		var dx, dy,        // pixel size of a single tetris block
+		    blocks,        // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
+		    actions,       // queue of user actions (inputs)
+		    playing,       // true|false - game is in progress
+		    dt,            // time since starting this game
+		    current,       // the current piece
+		    next,          // the next piece
+		    score,         // the current score
+		    vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
+		    rows,          // number of completed rows in the current game
+		    step,          // how long before current piece drops by 1 row
+		    hold,          // New: the piece in the hold box
+		    canHold;       // New: boolean to prevent hold spam
+		
+		//-------------------------------------------------------------------------
+		// tetris pieces
+		//
+		// blocks: each element represents a rotation of the piece (0, 90, 180, 270)
+		//         each element is a 16 bit integer where the 16 bits represent
+		//         a 4x4 set of blocks, e.g. j.blocks[0] = 0x44C0
+		//
+		//             0100 = 0x4 << 3 = 0x4000
+		//             0100 = 0x4 << 2 = 0x0400
+		//             1100 = 0xC << 1 = 0x00C0
+		//             0000 = 0x0 << 0 = 0x0000
+		//                               ------
+		//                               0x44C0
+		//
+		//-------------------------------------------------------------------------
+		
+		var i = { size: 4, blocks: [0x0F00, 0x2222, 0x00F0, 0x4444], color: 'cyan'   };
+		var j = { size: 3, blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20], color: 'blue'   };
+		var l = { size: 3, blocks: [0x4460, 0x0E80, 0xC440, 0x2E00], color: 'orange' };
+		var o = { size: 2, blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00], color: 'yellow' };
+		var s = { size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: 'green'  };
+		var t = { size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: 'purple' };
+		var z = { size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: 'red'    };
+		
+		//------------------------------------------------
+		// do the bit manipulation and iterate through each
+		// occupied block (x,y) for a given piece
+		//------------------------------------------------
+		function eachblock(type, x, y, dir, fn) {
+		  var bit, result, row = 0, col = 0, blocks = type.blocks[dir];
+		  for(bit = 0x8000 ; bit > 0 ; bit = bit >> 1) {
+		    if (blocks & bit) {
+		      fn(x + col, y + row);
+		    }
+		    if (++col === 4) {
+		      col = 0;
+		      ++row;
+		    }
+		  }
+		}
+		
+		//-----------------------------------------------------
+		// check if a piece can fit into a position in the grid
+		//-----------------------------------------------------
+		function occupied(type, x, y, dir) {
+		  var result = false
+		  eachblock(type, x, y, dir, function(x, y) {
+		    if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlock(x,y))
+		      result = true;
+		  });
+		  return result;
+		}
+		
+		function unoccupied(type, x, y, dir) {
+		  return !occupied(type, x, y, dir);
+		}
+		
+		//-----------------------------------------
+		// start with 4 instances of each piece and
+		// pick randomly until the 'bag is empty'
+		//-----------------------------------------
+		var pieces = [];
+		function randomPiece() {
+		  if (pieces.length == 0)
+		    pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
+		  var type = pieces.splice(random(0, pieces.length-1), 1)[0];
+		  return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };
+		}
+		
+		
+		//-------------------------------------------------------------------------
+		// GAME LOOP
+		//-------------------------------------------------------------------------
+		
+		function run() {
+		
+		  showStats(); // initialize FPS counter
+		  addEvents(); // attach keydown and resize events
+		
+		  var last = now = timestamp();
+		  function frame() {
+		    now = timestamp();
+		    update(Math.min(1, (now - last) / 1000.0)); // using requestAnimationFrame have to be able to handle large delta's caused when it 'hibernates' in a background or non-visible tab
+		    draw();
+		    stats.update();
+		    last = now;
+		    requestAnimationFrame(frame, canvas);
+		  }
+		
+		  resize(); // setup all our sizing information
+		  reset();  // reset the per-game variables
+		  frame();  // start the first frame
+		
+		}
+		
+		function showStats() {
+		  stats.domElement.id = 'stats';
+		  get('menu').appendChild(stats.domElement);
+		}
+		
+		function addEvents() {
+		  document.addEventListener('keydown', keydown, false);
+		  window.addEventListener('resize', resize, false);
+		}
+		
+		function resize(event) {
+		  canvas.width   = canvas.clientWidth;  // set canvas logical size equal to its physical size
+		  canvas.height  = canvas.clientHeight; // (ditto)
+		  ucanvas.width  = ucanvas.clientWidth;
+		  ucanvas.height = ucanvas.clientHeight;
+		  hcanvas.width  = hcanvas.clientWidth;  // New
+		  hcanvas.height = hcanvas.clientHeight; // New
+		  dx = canvas.width  / nx; // pixel size of a single tetris block
+		  dy = canvas.height / ny; // (ditto)
+		  invalidate();
+		  invalidateNext();
+		  invalidateHold(); // New
+		}
+		
+		function keydown(ev) {
+		  var handled = false;
+		  if (playing) {
+		    switch(ev.keyCode) {
+		      case KEY.LEFT:   actions.push(DIR.LEFT);  handled = true; break;
+		      case KEY.RIGHT:  actions.push(DIR.RIGHT); handled = true; break;
+		      case KEY.UP:     actions.push(DIR.UP);    handled = true; break;
+		      case KEY.DOWN:   actions.push(DIR.DOWN);  handled = true; break;
+		      case KEY.C:      holdPiece();             handled = true; break; // New
+		      case KEY.SPACE:  hardDrop();              handled = true; break; // New
+		      case KEY.ESC:    lose();                  handled = true; break;
+		    }
+		  }
+		  else if (ev.keyCode == KEY.SPACE) {
+		    play();
+		    handled = true;
+		  }
+		  
+		  // AI CONTROLS
+		  if (ev.keyCode == KEY.A) { 
+		    toggleAI(); 
+		    handled = true; 
+		  }
+		  else if (ev.keyCode == KEY.N1) { setAIMode('baseline'); handled = true; } // '1'
+		  else if (ev.keyCode == KEY.N2) { setAIMode('tuned'); handled = true; } // '2'
+		  else if (ev.keyCode == KEY.N3) { setAIMode('beam'); handled = true; } // '3'
+		  
+		  if (handled)
+		    ev.preventDefault(); // prevent arrow keys from scrolling the page (supported in IE9+ and all other browsers)
+		}
+		
+		//-------------------------------------------------------------------------
+		// GAME LOGIC
+		//-------------------------------------------------------------------------
+		
+		function play() { hide('start'); reset();          playing = true;  }
+		function lose() { show('start'); setVisualScore(); playing = false; }
+		
+		function setVisualScore(n)      { vscore = n || score; invalidateScore(); }
+		function setScore(n)            { score = n; setVisualScore(n);  }
+		function addScore(n)            { score = score + n;   }
+		function clearScore()           { setScore(0); }
+		function clearRows()            { setRows(0); }
+		function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); }
+		function addRows(n)             { setRows(rows + n); }
+		function getBlock(x,y, board)   { board = board || blocks; return (board && board[x] ? board[x][y] : null); } // Modified for AI
+		function setBlock(x,y,type)     { blocks[x] = blocks[x] || []; blocks[x][y] = type; invalidate(); }
+		function clearBlocks()          { blocks = []; invalidate(); }
+		function clearActions()         { actions = []; }
+		
+		function setCurrentPiece(piece) { 
+		  current = piece || randomPiece(); 
+		  invalidate();
+		  // AI HOOK
+		  if (ai.active && playing) {
+		    ai.moveTimer = 0; // Reset timer
+		    findBestMove();   // Find best move for this new piece
+		  }
+		}
+		
+		function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
+		
+		function reset() {
+		  dt = 0;
+		  clearActions();
+		  clearBlocks();
+		  clearRows();
+		  clearScore();
+		  setCurrentPiece(next);
+		  setNextPiece();
+		  hold = null;      // New
+		  canHold = true;   // New
+		  invalidateHold(); // New
+		}
+		
+		function update(idt) {
+		  if (playing) {
+		    if (vscore < score)
+		      setVisualScore(vscore + 1);
+		    
+		    // AI HOOK
+		    if (ai.active) {
+		      ai.moveTimer += idt * 1000;
+		      if (ai.moveTimer > ai.moveDelay) {
+		        ai.moveTimer = 0;
+		        aiStep(); // AI makes a move
+		      }
+		    } else {
+		      handle(actions.shift()); // Human makes a move
+		    }
+		
+		    // AI SUPER SPEED MOD
+		    if (!ai.active && dt > step) {
+		      dt = dt - step;
+		      drop();
+		    }
+		    else if (ai.active) {
+		      dt = 0; // Reset gravity timer while AI is on
+		    }
+		  }
+		}
+		
+		function handle(action) {
+		  switch(action) {
+		    case DIR.LEFT:  move(DIR.LEFT);  break;
+		    case DIR.RIGHT: move(DIR.RIGHT); break;
+		    case DIR.UP:    rotate();        break;
+		    case DIR.DOWN:  drop();          break;
+		  }
+		}
+		
+		function move(dir) {
+		  var x = current.x, y = current.y;
+		  switch(dir) {
+		    case DIR.RIGHT: x = x + 1; break;
+		    case DIR.LEFT:  x = x - 1; break;
+		    case DIR.DOWN:  y = y + 1; break;
+		  }
+		  if (unoccupied(current.type, x, y, current.dir)) {
+		    current.x = x;
+		    current.y = y;
+		    invalidate();
+		    return true;
+		  }
+		  else {
+		    return false;
+		  }
+		}
+		
+		function rotate() {
+		  var newdir = (current.dir == DIR.MAX ? DIR.MIN : current.dir + 1);
+		  if (unoccupied(current.type, current.x, current.y, newdir)) {
+		    current.dir = newdir;
+		    invalidate();
+		  }
+		}
+		
+		function drop() {
+		  if (!move(DIR.DOWN)) {
+		    addScore(10);
+		    dropPiece();
+		    removeLines();
+		    setCurrentPiece(next);
+		    setNextPiece(randomPiece());
+		    clearActions();
+		    if (occupied(current.type, current.x, current.y, current.dir)) {
+		      lose();
+		    }
+		  }
+		}
+		
+		function dropPiece() {
+		  eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
+		    setBlock(x, y, current.type);
+		  });
+		  canHold = true; // New: Allow player to hold again
+		}
+		
+		function removeLines() {
+		  var x, y, complete, n = 0;
+		  // FIX: Start at y = ny-1 (19) and loop down to y = 0
+		  for(y = ny - 1 ; y >= 0 ; --y) {
+		    complete = true;
+		    for(x = 0 ; x < nx ; ++x) {
+		      if (!getBlock(x, y))
+		        complete = false;
+		    }
+		    if (complete) {
+		      removeLine(y);
+		      y = y + 1; // recheck same line
+		      n++;
+		    }
+		  }
+		  if (n > 0) {
+		    addRows(n);
+		    addScore(100*Math.pow(2,n-1)); // 1: 100, 2: 200, 3: 400, 4: 800
+		  }
+		}
+		
+		function removeLine(n) {
+		  var x, y;
+		  for(y = n ; y >= 0 ; --y) {
+		    for(x = 0 ; x < nx ; ++x)
+		      setBlock(x, y, (y == 0) ? null : getBlock(x, y-1));
+		  }
+		}
+		
+    // holding pieces functionality
+		function holdPiece() {
+		  if (canHold) {
+		    if (hold) {
+		      var temp = current;
+		      current = hold;
+		      hold = temp;
+		      current.x = Math.round(random(0, nx - current.type.size));
+		      current.y = 0;
+		    } 
+		    else {
+		      hold = current;
+		      setCurrentPiece(next); // Use setCurrentPiece to trigger AI
+		      setNextPiece(randomPiece());
+		    }
+		    invalidate();
+		    invalidateHold();
+		    canHold = false;
+		  }
+		}
+		
+		function hardDrop() {
+		  while(move(DIR.DOWN)) {
+		    // keep moving down
+		  }
+		  drop();
+		}
+		
+		function findGhostY() {
+		  if (!current) return 0;
+		  var y = current.y;
+		  while(unoccupied(current.type, current.x, y + 1, current.dir)) {
+		    y++;
+		  }
+		  return y;
+		}
+		
+		//-------------------------------------------------------------------------
+		// RENDERING
+		//-------------------------------------------------------------------------
+		
+		var invalid = {};
+		
+		function invalidate()         { invalid.court  = true; }
+		function invalidateNext()     { invalid.next   = true; }
+		function invalidateScore()    { invalid.score  = true; }
+		function invalidateRows()     { invalid.rows   = true; }
+		function invalidateHold()     { invalid.hold   = true; }
+		
+		function draw() {
+		  ctx.save();
+		  ctx.lineWidth = 1;
+		  ctx.translate(0.5, 0.5);
+		  drawCourt();
+		  drawNext();
+		  drawHold();
+		  drawScore();
+		  drawRows();
+		  ctx.restore();
+		}
+		
+		function drawCourt() {
+		  if (invalid.court) {
+		    ctx.clearRect(0, 0, canvas.width, canvas.height);
+		    if (playing && current) {
+		      
+		      // ghost piece
+		      var ghostY = findGhostY();
+		      ctx.globalAlpha = 0.3;
+		      drawPiece(ctx, current.type, current.x, ghostY, current.dir);
+		      ctx.globalAlpha = 1.0;
+		
+		      drawPiece(ctx, current.type, current.x, current.y, current.dir);
+		    }
+		    var x, y, block;
+		    for(y = 0 ; y < ny ; y++) {
+		      for (x = 0 ; x < nx ; x++) {
+		        if (block = getBlock(x,y))
+		          drawBlock(ctx, x, y, block.color);
+		      }
+		    }
+		    ctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); // court boundary
+		    invalid.court = false;
+		  }
+		}
+		
+		function drawNext() {
+		  if (invalid.next) {
+		    var padding = (nu - next.type.size) / 2; // half-assed attempt at centering next piece display I hate webdev
+		    uctx.save();
+		    uctx.translate(0.5, 0.5);
+		    uctx.clearRect(0, 0, nu*dx, nu*dy);
+		    drawPiece(uctx, next.type, padding, padding, next.dir);
+		    uctx.strokeStyle = 'black';
+		    uctx.strokeRect(0, 0, nu*dx - 1, nu*dy - 1);
+		    uctx.restore();
+		    invalid.next = false;
+		  }
+		}
+		
+		function drawHold() {
+		  if (invalid.hold) {
+		    hctx.save();
+		    hctx.translate(0.5, 0.5);
+		    hctx.clearRect(0, 0, nu*dx, nu*dy);
+		    if (hold) {
+		      var padding = (nu - hold.type.size) / 2;
+		      drawPiece(hctx, hold.type, padding, padding, hold.dir);
+		    }
+		    hctx.strokeStyle = 'black';
+		    hctx.strokeRect(0, 0, nu*dx - 1, nu*dy - 1);
+		    hctx.restore();
+		    invalid.hold = false;
+		  }
+		}
+		
+		function drawScore() {
+		  if (invalid.score) {
+		    html('score', ("00000" + Math.floor(vscore)).slice(-5));
+		    invalid.score = false;
+		  }
+		}
+		
+		function drawRows() {
+		  if (invalid.rows) {
+		    html('rows', rows);
+		    invalid.rows = false;
+		  }
+		}
+		
+		function drawPiece(ctx, type, x, y, dir) {
+		  eachblock(type, x, y, dir, function(x, y) {
+		    drawBlock(ctx, x, y, type.color);
+		  });
+		}
+		
+		function drawBlock(ctx, x, y, color) {
+		  ctx.fillStyle = color;
+		  ctx.fillRect(x*dx, y*dy, dx, dy);
+		  ctx.strokeRect(x*dx, y*dy, dx, dy)
+		}
+		
+		var ai = {
+		  active: false,
+		  mode: 'tuned', // 'baseline', 'tuned', 'beam'
+		  moveTimer: 0,
+		  moveDelay: 0,
+		  bestMove: null,
+		  beamWidth: 5,
+		  beamDepth: 2 // Current piece + next piece
+		};
+		
+		function toggleAI() {
+		  ai.active = !ai.active;
+		  if (ai.active && !playing) {
+		    play();
+		  }
+		  if (ai.active) {
+		    console.log("AI Active. Mode: " + ai.mode);
+		    findBestMove(); // Find the first move
+		  } else {
+		    console.log("AI Deactivated.");
+		  }
+		}
+		
+		function setAIMode(mode) {
+		  ai.mode = mode;
+		  console.log("AI Mode set to: " + ai.mode);
+		  if (ai.active && playing) {
+		    findBestMove(); // recalc move with new strategy
+		  }
+		}
+		
+		function findBestMove() {
+		  if (!playing || !current) return;
+		
+		  var bestMove = null;
+		  var bestScore = -Infinity;
+		
+		  // store the piece this move was calculated for
+		  var pieceForMove = current;
+		
+		  if (ai.mode === 'baseline') {
+		    bestMove = findBestMove_1Ply(evaluateBoard_Baseline);
+		  } else if (ai.mode === 'tuned') {
+		    bestMove = findBestMove_1Ply(evaluateBoard_Tuned);
+		  } else if (ai.mode === 'beam') {
+		    bestMove = findBestMove_Beam(ai.beamWidth, ai.beamDepth);
+		  }
+		
+		  ai.bestMove = { 
+		    ...bestMove,
+		    piece: pieceForMove
+		  };
+		}
+		
+		function aiStep() {
+		  if (!ai.bestMove || !current || ai.bestMove.piece !== current) {
+		    // If no best move, or if the piece has changed, wait for calculation
+		    if(current && ai.active) findBestMove();
+		    return;
+		  }
+		
+		  if (ai.bestMove.action === 'hold') {
+		    holdPiece();
+		    ai.bestMove = null;
+		    return;
+		  }
+		
+      // rotate
+		  if (current.dir !== ai.bestMove.dir) {
+		    rotate();
+		    return;
+		  }
+		  // move left
+		  if (current.x > ai.bestMove.x) {
+		    move(DIR.LEFT);
+		    return;
+		  }
+		  // move right
+		  if (current.x < ai.bestMove.x) {
+		    move(DIR.RIGHT);
+		    return;
+		  }
+		  // drop
+		  if (current.x === ai.bestMove.x && current.dir === ai.bestMove.dir) {
+		    aiHardDrop();
+		  }
+		}
+		
+		function aiHardDrop() {
+		  while(move(DIR.DOWN)) {
+		    // keep moving down until it can't
+		  }
+		  drop();
+		}
+		
+		function findBestMove_1Ply(evaluateFn) {
+		  let bestScore = -Infinity;
+		  let bestMove = { x: 0, dir: 0 };
+		  let initialBoard = cloneBoard(blocks);
+		  let piece = current;
+		
+		  for (let dir = 0; dir < 4; dir++) {
+		    for (let x = -2; x < nx; x++) {
+		      let { y, legal } = simFindLandingY(piece.type, x, dir, initialBoard);
+		      
+		      if (!legal) continue; // skip invalid moves
+		
+		      // use a temporary board to evalute moves
+		      let { tempBoard, placed } = simPlacePiece(piece.type, x, y, dir, initialBoard);
+		      if (!placed) continue;
+		
+		      let { board: finalBoard, linesCleared } = simRemoveLines(tempBoard);
+		
+		      let score = evaluateFn(finalBoard, linesCleared);
+		
+		      if (score > bestScore) {
+		        bestScore = score;
+		        bestMove = { x: x, dir: dir, y: y };
+		      }
+		    }
+		  }
+		  return bestMove;
+		}
+    
+    // beam search with hold functionality
+		function runBeamSearch(pieces, initialBoard, beamWidth, depth) {
+		  // Beam: [ { board, score, firstMove } ]
+		  let beam = [{ board: initialBoard, score: 0, firstMove: null }];
+		  if (depth > pieces.length) depth = pieces.length;
+		
+		  for (let d = 0; d < depth; d++) {
+		    let piece = pieces[d];
+		    if (!piece) continue;
+		    let newBeam = [];
+		
+		    for (let state of beam) {
+		      let allMoves = findAllPossibleMoves(piece, state.board);
+		
+		      for (let move of allMoves) {
+		        // move = { x, dir, y, board: finalBoard, linesCleared }
+		        let heuristicScore = evaluateBoard_Tuned(move.board, move.linesCleared);
+		        let totalScore = state.score + heuristicScore; 
+		        
+		        let firstMove = (d === 0) ? move : state.firstMove;
+		
+		        newBeam.push({
+		          board: move.board,
+		          score: totalScore,
+		          firstMove: firstMove
+		        });
+		      }
+		    }
+		
+		    newBeam.sort((a, b) => b.score - a.score);
+		    beam = newBeam.slice(0, beamWidth);
+		  }
+		
+		  return (beam.length > 0) ? beam[0] : null;
+		}
+		
+		function findBestMove_Beam(beamWidth, depth) {
+      // no hold
+		  let piecesA = [current, next].filter(p => p); // [current, next]
+		  let boardA = cloneBoard(blocks);
+		  let resultA = runBeamSearch(piecesA, boardA, beamWidth, depth);
+		  let bestScoreA = resultA ? resultA.score : -Infinity;
+		
+      // using hold
+		  let bestScoreB = -Infinity;
+		  let resultB = null;
+		
+		  if (canHold) {
+		    let simCurrent = (hold === null) ? next : hold;
+		    let simNext = (hold === null) ? null : next;
+		    
+		    if (simCurrent) {
+		      let piecesB = [simCurrent, simNext].filter(p => p);
+		      let boardB = cloneBoard(blocks);
+		      resultB = runBeamSearch(piecesB, boardB, beamWidth, depth);
+		      bestScoreB = resultB ? resultB.score : -Infinity;
+		    }
+		  }
+		
+		  // return best of hold vs not holding
+		  if (bestScoreA >= bestScoreB) {
+		    if (resultA && resultA.firstMove) {
+		      return { action: 'place', x: resultA.firstMove.x, dir: resultA.firstMove.dir, y: resultA.firstMove.y };
+		    } else {
+		      return { action: 'place', ...findBestMove_1Ply(evaluateBoard_Tuned) };
+		    }
+		  } else {
+		    return { action: 'hold' };
+		  }
+		}
+		
+		function findAllPossibleMoves(piece, board) {
+		  let moves = [];
+		  for (let dir = 0; dir < 4; dir++) {
+		    for (let x = -2; x < nx; x++) {
+		      let { y, legal } = simFindLandingY(piece.type, x, dir, board);
+		      if (!legal) continue;
+		
+		      let { tempBoard, placed } = simPlacePiece(piece.type, x, y, dir, board);
+		      if (!placed) continue;
+		
+		      let { board: finalBoard, linesCleared } = simRemoveLines(tempBoard);
+		
+		      moves.push({
+		        x: x,
+		        dir: dir,
+		        y: y,
+		        board: finalBoard,
+		        linesCleared: linesCleared
+		      });
+		    }
+		  }
+		  return moves;
+		}
+		
+	
+		// weights
+		const weights = {
+		  baseline: {
+		    lines: 100,
+		    aggHeight: -1,
+		    holes: -50,
+		    bumpiness: -5,
+		    wells: 0
+		  },
+		  // basic tuned weights based on problems I had with the base weight
+		  tuned: {
+		    lines: 1000,     
+		    aggHeight: -40,
+		    holes: -300,
+		    bumpiness: -50,
+		    wells: -50
+		  }
+		};
+		
+		function evaluateBoard_Baseline(board, linesCleared) {
+		  let w = weights.baseline;
+		  let features = calculateBoardFeatures(board);
+		  
+		  let score = (w.lines * Math.pow(linesCleared, 2)) +
+		              (w.aggHeight * features.aggregateHeight) +
+		              (w.holes * features.holes) +
+		              (w.bumpiness * features.bumpiness);
+		  return score;
+		}
+		
+		function evaluateBoard_Tuned(board, linesCleared) {
+		  let w = weights.tuned;
+		  let features = calculateBoardFeatures(board);
+		  
+		  let score = (w.lines * Math.pow(linesCleared, 2)) +
+		              (w.aggHeight * features.aggregateHeight) +
+		              (w.holes * features.holes) +
+		              (w.bumpiness * features.bumpiness) +
+		              (w.wells * features.wells);
+		  return score;
+		}
+		
+		function calculateBoardFeatures(board) {
+		  let columnHeights = new Array(nx).fill(0);
+		  let aggregateHeight = 0;
+		  let holes = 0;
+		  let wells = 0;
+		
+		  for (let x = 0; x < nx; x++) {
+		    let foundTopBlock = false;
+		    for (let y = 0; y < ny; y++) {
+		      if (getSimBlock(x, y, board)) {
+		        if (!foundTopBlock) {
+		          columnHeights[x] = ny - y;
+		          foundTopBlock = true;
+		        }
+		      } else if (foundTopBlock) {
+		        holes++;
+		      }
+		    }
+		    aggregateHeight += columnHeights[x];
+		  }
+		
+		  let bumpiness = 0;
+		  for (let x = 0; x < nx - 1; x++) {
+		    bumpiness += Math.abs(columnHeights[x] - columnHeights[x + 1]);
+		    
+		    // check for wells
+		    let leftHeight = (x === 0) ? ny : columnHeights[x - 1];
+		    let rightHeight = (x === nx - 1) ? ny : columnHeights[x + 1];
+		    let myHeight = columnHeights[x];
+		    
+		    if (myHeight < leftHeight && myHeight < rightHeight) {
+		      wells += Math.min(leftHeight - myHeight, rightHeight - myHeight);
+		    }
+		  }
+		  let leftHeight = (nx < 2) ? ny : columnHeights[nx - 2];
+		  let rightHeight = ny;
+		  let myHeight = columnHeights[nx-1];
+		  if (myHeight < leftHeight && myHeight < rightHeight) {
+		      wells += Math.min(leftHeight - myHeight, rightHeight - myHeight);
+		  }
+		
+		  return { aggregateHeight, holes, bumpiness, wells };
+		}
+		
+		
+    // board simulation helpers
+		function cloneBoard(board) {
+		  let newBoard = [];
+		  for (let x = 0; x < nx; x++) {
+		    newBoard[x] = [];
+		    for (let y = 0; y < ny; y++) {
+		      newBoard[x][y] = getBlock(x, y, board);
+		    }
+		  }
+		  return newBoard;
+		}
+		
+		function getSimBlock(x, y, board) {
+		  return (board && board[x] ? board[x][y] : null);
+		}
+		
+		function simOccupied(type, x, y, dir, board) {
+		  let result = false;
+		  eachblock(type, x, y, dir, function(x, y) {
+		    if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getSimBlock(x, y, board))
+		      result = true;
+		  });
+		  return result;
+		}
+		
+		function simFindLandingY(type, x, dir, board) {
+		  if (simOccupied(type, x, 0, dir, board)) {
+		     if (simOccupied(type, x, -1, dir, board)) {
+		        return { y: 0, legal: false };
+		     }
+		  }
+		  
+		  let y = 0;
+		  while (!simOccupied(type, x, y + 1, dir, board)) {
+		    y++;
+		  }
+		  return { y: y, legal: true };
+		}
+		
+		function simPlacePiece(type, x, y, dir, board) {
+		  let tempBoard = cloneBoard(board);
+		  let placed = false;
+		  eachblock(type, x, y, dir, function(bx, by) {
+		    if (by >= 0 && by < ny && bx >= 0 && bx < nx) {
+		      tempBoard[bx] = tempBoard[bx] || [];
+		      tempBoard[bx][by] = type;
+		      placed = true;
+		    }
+		  });
+		  return { tempBoard, placed };
+		}
+		
+		function simRemoveLines(board) {
+		  let linesCleared = 0;
+		  let tempBoard = cloneBoard(board);
+		  
+		  for (let y = ny - 1; y >= 0; y--) {
+		    let complete = true;
+		    for (let x = 0; x < nx; x++) {
+		      if (!getSimBlock(x, y, tempBoard))
+		        complete = false;
+		    }
+		    if (complete) {
+		      tempBoard = simRemoveLine(y, tempBoard);
+		      y = y + 1;
+		      linesCleared++;
+		    }
+		  }
+		  return { board: tempBoard, linesCleared: linesCleared };
+		}
+		
+		function simRemoveLine(n, board) {
+		  let newBoard = cloneBoard(board);
+		  for (let y = n; y >= 0; y--) {
+		    for (let x = 0; x < nx; x++) {
+		      newBoard[x][y] = (y === 0) ? null : getSimBlock(x, y - 1, board);
+		    }
+		  }
+		  return newBoard;
+		}
+		
+		//-------------------------------------------------------------------------
+		// FINALLY, lets run the game
+		//-------------------------------------------------------------------------
+		
+		run();
+		
+	</script>
 </body>
 </html>
